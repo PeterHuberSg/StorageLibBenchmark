@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>StorageLibBenchmark</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\StorageLib\StorageLib\StorageLib.csproj" />
+    <ProjectReference Include="..\DbInterfaces\DbDefinitions.csproj" />
+  </ItemGroup>
+
+</Project>
