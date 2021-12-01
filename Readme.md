@@ -56,3 +56,17 @@ does not need to create a transaction for a single insert or update,
 *StorageLib* ensures that the data gets properly written to disk. A transaction 
 is only used if one or several operations like insert, etc. might need to 
 get undone for some reason later on.
+
+##Installation
+Clone first *StorageLib* from Github. See 
+[github.com/PeterHuberSg/StorageLib/blob/master/Setup.md](https://github.com/PeterHuberSg/StorageLib/blob/master/Setup.md)
+for details.
+
+Clone *StorageLibBenchmark* into the same parent directory like *StorageLib*.
+The directory structure should look like this:
+
+```
+ParentDirectory
+  StorageLib
+  StorageLibBenchmark
+```
