@@ -30,6 +30,7 @@ namespace StorageLibBenchmark {
   public enum DBEnum {
     StorageLib,
     SQLite,
+    PetaPoco,
     Count
   }
 

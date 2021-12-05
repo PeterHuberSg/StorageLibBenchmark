@@ -26,10 +26,11 @@ namespace StorageLibBenchmark {
   /// <summary>
   /// Implements ITestDB for a SQLite based db
   /// </summary>
-  public class SQLiteDb: ITestDB {
+  public class SQLiteDB: ITestDB {
 
     #region Constructor
     //      -----------
+
     readonly string dbFileName;
 
 
@@ -37,7 +38,7 @@ namespace StorageLibBenchmark {
     /// Constructor, creates an empty database.db file in dbPath directory, containing an empty table
     /// for storing TestItems
     /// </summary>
-    public SQLiteDb(string dbPath) {
+    public SQLiteDB(string dbPath) {
       dbFileName = dbPath + @"\database.db";
 
       var connection = new SQLiteConnection($"DataSource={dbFileName};");

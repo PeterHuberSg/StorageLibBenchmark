@@ -30,6 +30,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 
 namespace StorageLibBenchmark {
@@ -42,7 +43,7 @@ namespace StorageLibBenchmark {
     #region Configuration data
     //      ------------------
 
-    const int testDataCount = 1000;
+    const int testDataCount = 100000;
 
     /// <summary>
     /// enumeration of all measurements taken
@@ -62,7 +63,7 @@ namespace StorageLibBenchmark {
       calculateSumOfADecimal,
       deleteItemsWithTransaction,
       deleteItemsWithoutTransaction,
-      closeDB2,
+      closeDeletedDB,
       Count
     }
 
@@ -122,6 +123,10 @@ namespace StorageLibBenchmark {
       for (dBEnum = 0; dBEnum < DBEnum.Count; dBEnum++) {
 
         switch (dBEnum) {
+        case DBEnum.PetaPoco:
+          Console.WriteLine("PetaPoco with SQLite");
+          Console.WriteLine("--------------------");
+          break;
         case DBEnum.StorageLib:
           Console.WriteLine("StorageLib");
           Console.WriteLine("----------");
@@ -138,8 +143,9 @@ namespace StorageLibBenchmark {
         traceStart("Create a new database with an empty table for test data");
         GC.Collect();
         testDb = dBEnum switch {
+          DBEnum.PetaPoco => new PetaPocoDB(testDataPath),
           DBEnum.StorageLib => new SLibDB(testDataPath),
-          DBEnum.SQLite => new SQLiteDb(testDataPath),
+          DBEnum.SQLite => new SQLiteDB(testDataPath),
           _ => throw new NotSupportedException(),
         };
 
@@ -230,16 +236,32 @@ namespace StorageLibBenchmark {
       }
 
       //display result table
-      Console.WriteLine("StorageLib         SQLite");
+      var sb = new StringBuilder();
+      sb.AppendLine($"Iterations: 2*{testDataCount}");
+      sb.AppendLine("StorageLib\t\tSQLite\t\tPetaPoco\t\tActivity");
+      Console.WriteLine($"Iterations: 2*{testDataCount}");
+      Console.WriteLine();
+      Console.WriteLine("StorageLib            SQLite            PetaPoco");
+      Console.WriteLine("      ms                  ms                  ms");
       for (int resultIndex = 0; resultIndex < (int)ResultEnum.Count; resultIndex++) {
         for (int dbIndex = 0; dbIndex < (int)DBEnum.Count; dbIndex++) {
           var result = results[dbIndex, resultIndex].TotalMilliseconds;
           var percent100 = results[0, resultIndex].TotalMilliseconds;
           var percent = result /percent100 * 100;
-          Console.Write($"{result, 8:0.000} {percent, 7:N0}%  ");
+          Console.Write($"{result, 8:0.000} {percent, 7:N0}% | ");
+          sb.Append($"{result:N2}\t{percent:N0}\t");
         }
         Console.WriteLine(resultTexts[resultIndex]);
+        sb.AppendLine(resultTexts[resultIndex]);
+        if (resultIndex==(int)ResultEnum.createEmptyDB ||
+          resultIndex==(int)ResultEnum.closeInsertedDB ||
+          resultIndex==(int)ResultEnum.closeUpdatedDB ||
+          resultIndex==(int)ResultEnum.closeDeletedDB) 
+        {
+          Console.WriteLine();
+        }
       }
+      var s = sb.ToString();
     }
     #endregion
 
@@ -249,6 +271,7 @@ namespace StorageLibBenchmark {
 
     static Stopwatch stopwatch = new Stopwatch();
     static (int Left,int Top) cursorPosition;
+    static string lastLine;
 
 
     private static void traceStart(string line) {
@@ -260,6 +283,7 @@ namespace StorageLibBenchmark {
       Console.SetCursorPosition(10, cursorPosition.Top);
       Console.WriteLine(line);
       cursorPosition = Console.GetCursorPosition();
+      lastLine = line;
       stopwatch.Restart();
     }
 
@@ -271,7 +295,7 @@ namespace StorageLibBenchmark {
       stopwatch.Stop();
       var cursorPositionNew = Console.GetCursorPosition();
       Console.SetCursorPosition(0, cursorPosition.Top-1);
-      Console.WriteLine(stopwatch.Elapsed.ToString(@"ss\.ffffff"));
+      Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString("N6") + ' ' + lastLine);
       Console.SetCursorPosition(cursorPositionNew.Left, cursorPositionNew.Top);
       results[(int)dBEnum, (int)resultEnum++] = stopwatch.Elapsed;
       if (resultEnum==ResultEnum.Count) resultEnum = 0;

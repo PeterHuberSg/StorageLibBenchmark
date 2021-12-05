@@ -57,7 +57,7 @@ does not need to create a transaction for a single insert or update,
 is only used if one or several operations like insert, etc. might need to 
 get undone for some reason later on.
 
-##Installation
+## Installation
 Clone first *StorageLib* from Github. See 
 [github.com/PeterHuberSg/StorageLib/blob/master/Setup.md](https://github.com/PeterHuberSg/StorageLib/blob/master/Setup.md)
 for details.
